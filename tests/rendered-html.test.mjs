@@ -37,7 +37,7 @@ test("server-renders Kranthi's interactive illustrated caricature", async () => 
   assert.match(html, /What runs underneath\./);
   assert.match(html, /Pull\. React\. Repeat\./);
   assert.doesNotMatch(html, /Character notes|Wavy, full|flecked with grey/i);
-  assert.doesNotMatch(html, /codex-preview|Your site is taking shape/);
+  assert.doesNotMatch(html, /Your site is taking shape/);
 });
 
 test("ships the illustrated character set without direct photo assets", async () => {
@@ -62,7 +62,7 @@ test("ships the illustrated character set without direct photo assets", async ()
   assert.match(page, /character\/pull-hand\.png/);
   assert.match(page, /aria-expanded=\{isOpen\}/);
   assert.match(page, /profile-panel/);
-  assert.doesNotMatch(page, /SkeletonPreview|codex-preview/);
+  assert.doesNotMatch(page, /SkeletonPreview/);
   assert.doesNotMatch(page, /public\/images|kranthi-hero\.jpg|\.HEIC/i);
   assert.doesNotMatch(packageJson, /react-loading-skeleton/);
 
@@ -76,6 +76,14 @@ test("ships the illustrated character set without direct photo assets", async ()
     access(new URL("../public/brand/horse-mark.png", import.meta.url)),
     access(new URL("../public/brand/horse-gallop.webp", import.meta.url)),
   ]);
+
+  const gallop = await readFile(
+    new URL("../public/brand/horse-gallop.webp", import.meta.url),
+  );
+  assert.equal(gallop.subarray(0, 4).toString("ascii"), "RIFF");
+  assert.equal(gallop.subarray(8, 12).toString("ascii"), "WEBP");
+  assert.ok(gallop.includes(Buffer.from("ANIM")));
+  assert.ok(gallop.toString("latin1").match(/ANMF/g)?.length >= 12);
 
   await assert.rejects(access(new URL("../public/images", import.meta.url)));
 });

@@ -1,100 +1,116 @@
 # Kranthi — An Interactive Portrait
 
-An elastic, hand-inked personal portrait running on
-[vinext](https://github.com/cloudflare/vinext), with a drag-reactive character
-and pull-to-reveal profile panel.
+An elastic, hand-inked personal portrait built with Next.js, vinext, and
+Cloudflare Pages. The character reacts to hover, drag, release, drawing, and
+the pull-to-reveal profile panel.
 
-## Prerequisites
+## Requirements
 
 - Node.js `>=22.13.0`
+- npm
 
-## Quick Start
+## Local build and preview
 
 ```bash
-npm install
-npm run dev
+npm ci
 npm run build
+python3 -m http.server 8788 --directory dist/client
 ```
 
-Deploy the static export to the existing Cloudflare Pages project with
-`npm run deploy`.
+Open `http://localhost:8788`.
 
-## Included Shape
+Before pushing a change:
 
-- edit site code under `app/`
-- `wrangler.jsonc` provides Cloudflare's local build configuration
-- `vite.config.ts` builds the App Router with Cloudflare's Vite plugin
-- `db/schema.ts` starts intentionally empty
-- `examples/d1/` contains an optional D1 example surface
-- `drizzle.config.ts` supports local migration generation when needed
-
-## Workspace Auth Headers
-
-OpenAI workspace sites can read the current user's email from
-`oai-authenticated-user-email`.
-
-SIWC-authenticated workspace sites may also receive
-`oai-authenticated-user-full-name` when the user's SIWC profile has a non-empty
-`name` claim. The full-name value is percent-encoded UTF-8 and is accompanied by
-`oai-authenticated-user-full-name-encoding: percent-encoded-utf-8`.
-
-Treat the full name as optional and fall back to email when it is absent:
-
-```tsx
-import { headers } from "next/headers";
-
-export default async function Home() {
-  const requestHeaders = await headers();
-  const email = requestHeaders.get("oai-authenticated-user-email");
-  const encodedFullName = requestHeaders.get("oai-authenticated-user-full-name");
-  const fullName =
-    encodedFullName &&
-    requestHeaders.get("oai-authenticated-user-full-name-encoding") ===
-      "percent-encoded-utf-8"
-      ? decodeURIComponent(encodedFullName)
-      : null;
-
-  const displayName = fullName ?? email;
-  // ...
-}
+```bash
+npm test
+npm run lint
 ```
 
-## Optional Dispatch-Owned ChatGPT Sign-In
+## Automatic Cloudflare Pages deployment
 
-Import the ready-to-use helpers from `app/chatgpt-auth.ts` when the site needs
-optional or required ChatGPT sign-in:
+The repository is connected to the existing `kranthi-personal-site` Cloudflare
+Pages project. Every push to `main` starts a production deployment
+automatically.
 
-- Use `getChatGPTUser()` for optional signed-in UI.
-- Use `requireChatGPTUser(returnTo)` for server-rendered pages that should send
-  anonymous visitors through Sign in with ChatGPT.
-- Use `chatGPTSignInPath(returnTo)` and `chatGPTSignOutPath(returnTo)` for
-  browser links or actions.
-- Pass a same-origin relative `returnTo` path for the destination after sign-in
-  or sign-out. The helper validates and safely encodes it.
-- Mark protected pages with `export const dynamic = "force-dynamic"` because
-  they depend on per-request identity headers.
+Current production settings:
 
-Dispatch owns `/signin-with-chatgpt`, `/signout-with-chatgpt`, `/callback`, the
-OAuth cookies, and identity header injection. Do not implement app routes for
-those reserved paths. Routes that do not import and call the helper remain
-anonymous-compatible.
+| Setting | Value |
+| --- | --- |
+| Git repository | `kran7hi/Site` |
+| Production branch | `main` |
+| Build command | `npm run build` |
+| Build output directory | `dist/client` |
+| Root directory | Repository root (leave blank) |
 
-SIWC establishes identity only; it does not prove workspace membership. Use the
-Sites hosting platform's access policy controls for workspace-wide restrictions,
-or enforce explicit server-side membership or allowlist checks.
+To inspect or repair the existing Git connection:
 
-Use SIWC for account pages, user-specific dashboards, saved records, and write
-actions tied to the current ChatGPT user. Leave public content anonymous.
+1. Open **Workers & Pages → kranthi-personal-site**.
+2. Open **Settings → Builds → Git repository**.
+3. Choose **Manage** and verify `kran7hi/Site` with production branch `main`.
+4. Verify the build command is `npm run build` and the output directory is
+   `dist/client`.
 
-## Useful Commands
+To create a replacement Pages project:
 
-- `npm run dev`: start local development
-- `npm run build`: verify the vinext build output
-- `npm run deploy`: build and deploy to the `kranthi-personal-site` Pages project
-- `npm test`: build the site and verify its rendered personal archive
-- `npm run db:generate`: generate Drizzle migrations after schema changes
+1. Open **Workers & Pages** in the Cloudflare dashboard.
+2. Choose **Create application → Pages → Connect to Git**.
+3. Select the GitHub repository `kran7hi/Site`.
+4. Set the production branch to `main`.
+5. Use `npm run build` as the build command.
+6. Use `dist/client` as the build output directory.
+7. Leave the root directory blank and save the deployment.
 
-## Learn More
+If the build image does not select Node.js 22, add a Pages build variable named
+`NODE_VERSION` with the value `22.13.0`.
 
-- [vinext Documentation](https://github.com/cloudflare/vinext)
-- [Drizzle D1 Guide](https://orm.drizzle.team/docs/get-started/d1-new)
+Cloudflare will deploy future pushes to `main` and create preview deployments
+for eligible non-production branches.
+
+## Domains
+
+The Pages project serves:
+
+- `https://kranthireddy.com`
+- `https://www.kranthireddy.com`
+- `https://kranthi-personal-site.pages.dev`
+
+To restore a domain, open the Pages project, select **Custom domains**, choose
+**Set up a custom domain**, and follow Cloudflare's DNS prompts.
+
+## Manual deployment
+
+Automatic Git deployments are preferred. If a manual deployment is needed:
+
+```bash
+npx wrangler login
+npm run deploy
+```
+
+The deploy script builds the site and uploads `dist/client` to the
+`kranthi-personal-site` Pages project. This bypasses the Git build and creates a
+separate deployment, so it should not normally be run after pushing `main`.
+
+## Useful commands
+
+- `npm run build` — create the production build
+- `npm test` — build and run the rendered-site tests
+- `npm run lint` — run the code-quality checks
+- `npm run deploy` — manually deploy to Cloudflare Pages
+- `npm run db:generate` — generate optional Drizzle migrations
+
+## Project structure
+
+- `app/` — page, portrait interaction, styles, and sound behavior
+- `public/` — portrait, brand, and social-preview assets
+- `tests/` — rendered output and interaction contract checks
+- `wrangler.jsonc` — Cloudflare runtime and asset configuration
+- `vite.config.ts` — vinext and Cloudflare Vite configuration
+
+## Motion reference
+
+The logo's motion direction was inspired by Laurence Penney's
+[Muybridge variable-font experiment](https://codepen.io/lorp/pen/PRdNYq).
+The shipped animation is an independently processed riderless silhouette loop
+derived from the public-domain
+[Horse_gif.gif](https://meta.wikimedia.org/wiki/File:Horse_gif.gif) sequence;
+the CodePen font is not bundled.
