@@ -9,6 +9,16 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://kranthireddy.com"),
   title,
   description,
+  icons: {
+    icon: [
+      {
+        url: "/brand/horse-mark.png",
+        type: "image/png",
+        sizes: "512x512",
+      },
+    ],
+    apple: "/brand/horse-mark.png",
+  },
   openGraph: {
     title,
     description,

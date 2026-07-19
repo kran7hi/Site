@@ -161,7 +161,7 @@ export default function Home() {
 
         <header className="hero__header">
           <a className="wordmark" href="#hero-title" aria-label="Kranthi, home">
-            K :D
+            <span className="wordmark__mark" aria-hidden="true" />
           </a>
           <button
             className="sound-toggle"

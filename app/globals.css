@@ -100,31 +100,34 @@ canvas {
 
 .wordmark {
   display: grid;
-  width: 54px;
+  width: 78px;
   height: 54px;
   place-items: center;
-  border: 3px solid var(--ink);
-  border-radius: 50%;
-  font-family: "Comic Sans MS", "Marker Felt", cursive;
-  font-size: 12px;
-  font-weight: 900;
   text-decoration: none;
   transform: rotate(-5deg);
-  transition: color 180ms ease, background 180ms ease, transform 180ms ease;
+  transition: transform 180ms ease;
+}
+
+.wordmark__mark {
+  width: 100%;
+  height: 100%;
+  background: url("/brand/horse-mark.png") center / contain no-repeat;
 }
 
 .wordmark:hover,
 .wordmark:focus-visible {
-  color: var(--signal);
-  background: var(--ink);
-  outline: none;
   transform: rotate(5deg) scale(1.06);
+}
+
+.wordmark:focus-visible {
+  outline: 3px dashed var(--ink);
+  outline-offset: 4px;
 }
 
 .sound-toggle {
   position: absolute;
   top: 27px;
-  left: 104px;
+  left: 128px;
   display: inline-flex;
   min-width: 76px;
   align-items: center;
@@ -878,13 +881,13 @@ canvas {
   }
 
   .wordmark {
-    width: 48px;
+    width: 68px;
     height: 48px;
   }
 
   .sound-toggle {
     top: 21px;
-    left: 82px;
+    left: 102px;
     min-width: 68px;
     padding-right: 8px;
     padding-left: 8px;

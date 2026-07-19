@@ -30,6 +30,7 @@ test("server-renders Kranthi's interactive illustrated caricature", async () => 
 
   const html = await response.text();
   assert.match(html, /<title>Kranthi — An Interactive Caricature<\/title>/i);
+  assert.match(html, /\/brand\/horse-mark\.png/);
   assert.match(html, /Who am I\?/);
   assert.match(html, /Sup, I/);
   assert.match(html, /senior backend software developer/i);
@@ -40,13 +41,16 @@ test("server-renders Kranthi's interactive illustrated caricature", async () => 
 });
 
 test("ships the illustrated character set without direct photo assets", async () => {
-  const page = await readFile(new URL("../app/page.tsx", import.meta.url), "utf8");
-  const packageJson = await readFile(
-    new URL("../package.json", import.meta.url),
-    "utf8",
-  );
+  const [page, layout, packageJson] = await Promise.all([
+    readFile(new URL("../app/page.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/layout.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../package.json", import.meta.url), "utf8"),
+  ]);
 
   assert.match(page, /ElasticAvatar/);
+  assert.match(page, /className="wordmark__mark"/);
+  assert.doesNotMatch(page, />\s*K :D\s*</);
+  assert.match(layout, /\/brand\/horse-mark\.png/);
   assert.match(page, /character\/head-neutral-v3\.png/);
   assert.match(page, /character\/pull-hand\.png/);
   assert.match(page, /aria-expanded=\{isOpen\}/);
@@ -62,6 +66,7 @@ test("ships the illustrated character set without direct photo assets", async ()
     access(new URL("../public/character/head-release-v3.png", import.meta.url)),
     access(new URL("../public/character/head-blink-v3.png", import.meta.url)),
     access(new URL("../public/character/pull-hand.png", import.meta.url)),
+    access(new URL("../public/brand/horse-mark.png", import.meta.url)),
   ]);
 
   await assert.rejects(access(new URL("../public/images", import.meta.url)));
