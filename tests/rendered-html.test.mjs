@@ -41,16 +41,23 @@ test("server-renders Kranthi's interactive illustrated caricature", async () => 
 });
 
 test("ships the illustrated character set without direct photo assets", async () => {
-  const [page, layout, packageJson] = await Promise.all([
+  const [page, layout, styles, packageJson] = await Promise.all([
     readFile(new URL("../app/page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/layout.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
     readFile(new URL("../package.json", import.meta.url), "utf8"),
   ]);
 
   assert.match(page, /ElasticAvatar/);
   assert.match(page, /className="wordmark__mark"/);
+  assert.match(page, /href="\/"/);
+  assert.doesNotMatch(page, /href="#hero-title"/);
+  assert.match(page, /window\.history\.replaceState\(null, "", "\/"\)/);
+  assert.match(page, /window\.location\.reload\(\)/);
   assert.doesNotMatch(page, />\s*K :D\s*</);
   assert.match(layout, /\/brand\/horse-mark\.png/);
+  assert.match(styles, /\/brand\/horse-gallop\.webp/);
+  assert.match(styles, /prefers-reduced-motion: reduce/);
   assert.match(page, /character\/head-neutral-v3\.png/);
   assert.match(page, /character\/pull-hand\.png/);
   assert.match(page, /aria-expanded=\{isOpen\}/);
@@ -67,6 +74,7 @@ test("ships the illustrated character set without direct photo assets", async ()
     access(new URL("../public/character/head-blink-v3.png", import.meta.url)),
     access(new URL("../public/character/pull-hand.png", import.meta.url)),
     access(new URL("../public/brand/horse-mark.png", import.meta.url)),
+    access(new URL("../public/brand/horse-gallop.webp", import.meta.url)),
   ]);
 
   await assert.rejects(access(new URL("../public/images", import.meta.url)));

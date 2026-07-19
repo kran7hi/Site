@@ -1,7 +1,9 @@
 "use client";
 
+import Link from "next/link";
 import {
   type CSSProperties,
+  type MouseEvent as ReactMouseEvent,
   type PointerEvent as ReactPointerEvent,
   useCallback,
   useEffect,
@@ -38,6 +40,22 @@ const expressions = [
     note: "Elastic reset",
   },
 ];
+
+const reloadHome = (event: ReactMouseEvent<HTMLAnchorElement>) => {
+  if (
+    event.button !== 0 ||
+    event.metaKey ||
+    event.ctrlKey ||
+    event.shiftKey ||
+    event.altKey
+  ) {
+    return;
+  }
+
+  event.preventDefault();
+  window.history.replaceState(null, "", "/");
+  window.location.reload();
+};
 
 export default function Home() {
   const [isOpen, setIsOpen] = useState(false);
@@ -160,9 +178,14 @@ export default function Home() {
         <div className="hero__texture" aria-hidden="true" />
 
         <header className="hero__header">
-          <a className="wordmark" href="#hero-title" aria-label="Kranthi, home">
+          <Link
+            className="wordmark"
+            href="/"
+            aria-label="Kranthi, home"
+            onClick={reloadHome}
+          >
             <span className="wordmark__mark" aria-hidden="true" />
-          </a>
+          </Link>
           <button
             className="sound-toggle"
             type="button"
