@@ -14,6 +14,8 @@ import type {
 } from "./useInteractionAudio";
 
 type Expression = "neutral" | "surprised" | "drag" | "release" | "blink";
+type AvatarPointerTarget = HTMLCanvasElement | HTMLSpanElement;
+type AvatarPointerEvent = ReactPointerEvent<AvatarPointerTarget>;
 
 export type CursorMode = "idle" | "grab" | "drag" | "draw" | "pull";
 
@@ -240,7 +242,7 @@ export function ElasticAvatar({
   };
 
   const updatePointer = (
-    event: ReactPointerEvent<HTMLCanvasElement>,
+    event: AvatarPointerEvent,
     bounds: DOMRect,
   ) => {
     const engine = engineRef.current;
@@ -287,9 +289,7 @@ export function ElasticAvatar({
     return x * x + y * y <= 1;
   };
 
-  const finishPointer = (
-    event?: ReactPointerEvent<HTMLCanvasElement>,
-  ) => {
+  const finishPointer = (event?: AvatarPointerEvent) => {
     const engine = engineRef.current;
     if (event && engine.pointerId !== event.pointerId) return;
 
@@ -641,9 +641,10 @@ export function ElasticAvatar({
     };
   }, []);
 
-  const onPointerMove = (event: ReactPointerEvent<HTMLCanvasElement>) => {
+  const onPointerMove = (event: AvatarPointerEvent) => {
     const engine = engineRef.current;
-    const bounds = event.currentTarget.getBoundingClientRect();
+    const bounds = canvasRef.current?.getBoundingClientRect();
+    if (!bounds) return;
     updatePointer(event, bounds);
     engine.pointerSeen = event.pointerType !== "touch";
 
@@ -696,11 +697,12 @@ export function ElasticAvatar({
     applyHoverState(hovered);
   };
 
-  const onPointerDown = (event: ReactPointerEvent<HTMLCanvasElement>) => {
+  const onPointerDown = (event: AvatarPointerEvent) => {
     if (event.pointerType === "mouse" && event.button !== 0) return;
 
     const engine = engineRef.current;
-    const bounds = event.currentTarget.getBoundingClientRect();
+    const bounds = canvasRef.current?.getBoundingClientRect();
+    if (!bounds) return;
     updatePointer(event, bounds);
     engine.pointerSeen = event.pointerType !== "touch";
     engine.lastClientX = event.clientX;
@@ -754,14 +756,14 @@ export function ElasticAvatar({
     }
   };
 
-  const onPointerUp = (event: ReactPointerEvent<HTMLCanvasElement>) => {
+  const onPointerUp = (event: AvatarPointerEvent) => {
     finishPointer(event);
     if (event.currentTarget.hasPointerCapture(event.pointerId)) {
       event.currentTarget.releasePointerCapture(event.pointerId);
     }
   };
 
-  const onPointerCancel = (event: ReactPointerEvent<HTMLCanvasElement>) => {
+  const onPointerCancel = (event: AvatarPointerEvent) => {
     const engine = engineRef.current;
     if (engine.pointerId !== event.pointerId) return;
 
@@ -869,6 +871,16 @@ export function ElasticAvatar({
         aria-hidden="true"
       >
         <span className="avatar-rig__shadow" />
+        <span
+          className="avatar-rig__hit-area"
+          aria-hidden="true"
+          onPointerMove={onPointerMove}
+          onPointerDown={onPointerDown}
+          onPointerUp={onPointerUp}
+          onPointerCancel={onPointerCancel}
+          onLostPointerCapture={() => finishPointer()}
+          onPointerLeave={onPointerLeave}
+        />
         {EXPRESSIONS.map((candidate) => (
           <div
             className={`avatar-rig__frame${

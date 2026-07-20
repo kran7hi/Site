@@ -111,6 +111,18 @@ test("stages release recovery and natural blinking", async () => {
   assert.match(avatar, /BLINK_DELAYS_MS/);
 });
 
+test("keeps mobile face drags separate from page scrolling", async () => {
+  const [avatar, styles] = await Promise.all([
+    readFile(new URL("../app/ElasticAvatar.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
+  ]);
+
+  assert.match(avatar, /className="avatar-rig__hit-area"/);
+  assert.match(avatar, /className="avatar-rig__hit-area"[\s\S]*onPointerDown=\{onPointerDown\}/);
+  assert.match(styles, /\.avatar-canvas\s*\{[^}]*touch-action:\s*pan-y;/s);
+  assert.match(styles, /\.avatar-rig__hit-area\s*\{[^}]*touch-action:\s*none;/s);
+});
+
 test("adds original gesture-gated interaction sounds and a persistent mute control", async () => {
   const [page, avatar, audio] = await Promise.all([
     readFile(new URL("../app/page.tsx", import.meta.url), "utf8"),

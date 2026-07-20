@@ -292,6 +292,24 @@ canvas {
   display: none;
 }
 
+.avatar-rig__hit-area {
+  position: absolute;
+  z-index: 5;
+  inset: 6% 14%;
+  border-radius: 50%;
+  clip-path: ellipse(50% 50% at 50% 50%);
+  cursor: grab;
+  pointer-events: auto;
+  touch-action: none;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.avatar-rig__hit-area:active {
+  cursor: grabbing;
+}
+
 .avatar-rig img {
   position: absolute;
   inset: 0;
