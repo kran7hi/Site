@@ -58,6 +58,10 @@ test("ships the illustrated character set without direct photo assets", async ()
   assert.match(layout, /\/brand\/horse-mark\.png/);
   assert.match(styles, /\/brand\/horse-gallop\.webp/);
   assert.match(styles, /prefers-reduced-motion: reduce/);
+  assert.match(
+    styles,
+    /\.avatar-canvas\s*\{[^}]*-webkit-touch-callout:\s*none;[^}]*-webkit-user-select:\s*none;[^}]*user-select:\s*none;/s,
+  );
   assert.match(page, /character\/head-neutral-v3\.png/);
   assert.match(page, /character\/pull-hand\.png/);
   assert.match(page, /aria-expanded=\{isOpen\}/);

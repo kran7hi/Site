@@ -4,6 +4,15 @@ An elastic, hand-inked personal portrait built with Next.js, vinext, and
 Cloudflare Pages. The character reacts to hover, drag, release, drawing, and
 the pull-to-reveal profile panel.
 
+## Expressions
+
+<p align="center">
+  <img src="public/character/head-neutral-v3.png" alt="Kranthi caricature — calm expression" width="23%">
+  <img src="public/character/head-surprised-v3.png" alt="Kranthi caricature — surprised expression" width="23%">
+  <img src="public/character/head-drag-v3.png" alt="Kranthi caricature — dragging expression" width="23%">
+  <img src="public/character/head-release-v3.png" alt="Kranthi caricature — release expression" width="23%">
+</p>
+
 ## Requirements
 
 - Node.js `>=22.13.0`

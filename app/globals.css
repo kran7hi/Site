@@ -255,6 +255,9 @@ canvas {
   cursor: default;
   pointer-events: auto;
   touch-action: pan-y;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 .avatar-canvas:focus-visible {
